@@ -17,7 +17,6 @@ import java.util.List;
 /**
  * Provides database operations for User entities.
  *
- * @author dweise
  */
 public class UserDao {
 
