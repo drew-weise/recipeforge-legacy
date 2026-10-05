@@ -16,17 +16,21 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class RecipeDaoTest {
 
-    private RecipeDao recipeDao;
+    private GenericDao<Recipe> recipeDao;
+    private GenericDao<User> userDao;
 
     /**
-     * Resets the test database and creates a new RecipeDao
+     * Resets the test database and creates a new RecipeDao/UserDao
      * before each test.
      */
     @BeforeEach
     void setUp() {
+
+        recipeDao = new GenericDao<>(Recipe.class);
+        userDao = new GenericDao<>(User.class);
+
         Database database = Database.getInstance();
         database.runSQL("CleanUsersAndRecipesDB.sql");
-        recipeDao = new RecipeDao();
     }
 
     /**
@@ -34,7 +38,7 @@ class RecipeDaoTest {
      */
     @Test
     void getByIdSuccess() {
-        Recipe recipe = recipeDao.getById(1);
+        Recipe recipe = (Recipe)recipeDao.getById(1);
 
         assertNotNull(recipe);
         assertEquals("Pancakes", recipe.getRecipeTitle());
@@ -46,12 +50,12 @@ class RecipeDaoTest {
      */
     @Test
     void updateSuccess() {
-        Recipe recipeToUpdate = recipeDao.getById(1);
+        Recipe recipeToUpdate = (Recipe)recipeDao.getById(1);
 
         recipeToUpdate.setRecipeTitle("Waffles");
         recipeDao.update(recipeToUpdate);
 
-        Recipe updatedRecipe = recipeDao.getById(1);
+        Recipe updatedRecipe = (Recipe)recipeDao.getById(1);
 
         assertEquals("Waffles", updatedRecipe.getRecipeTitle());
     }
@@ -62,7 +66,7 @@ class RecipeDaoTest {
      */
     @Test
     void insertSuccess() {
-        User user = new UserDao().getById(1);
+        User user = userDao.getById(1);
 
         Recipe recipe = new Recipe(
                 "Avocado Toast",
