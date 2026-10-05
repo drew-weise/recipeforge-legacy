@@ -16,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class UserDaoTest {
 
-    private GenericDao<User> genericDao;
+    private GenericDao<User> userDao;
+    private GenericDao<Recipe> recipeDao;
 
     /**
      * Resets the test database and creates a new UserDao
@@ -24,7 +25,8 @@ class UserDaoTest {
      */
     @BeforeEach
     void setUp() {
-        genericDao = new GenericDao<>(User.class);
+        userDao = new GenericDao<>(User.class);
+        recipeDao = new GenericDao<>(Recipe.class);
 
         Database database = Database.getInstance();
         database.runSQL("CleanUsersAndRecipesDB.sql");
@@ -35,7 +37,7 @@ class UserDaoTest {
      */
     @Test
     void getByIdSuccess() {
-        User user = genericDao.getById(1);
+        User user = userDao.getById(1);
 
         assertNotNull(user);
         assertEquals("drew123", user.getDisplayName());
@@ -47,14 +49,14 @@ class UserDaoTest {
      */
     @Test
     void updateSuccess() {
-        User userToUpdate = genericDao.getById(1);
+        User userToUpdate = userDao.getById(1);
 
         assertNotNull(userToUpdate);
 
         userToUpdate.setDisplayName("John");
-        genericDao.update(userToUpdate);
+        userDao.update(userToUpdate);
 
-        User updatedUser = genericDao.getById(1);
+        User updatedUser = userDao.getById(1);
 
         assertNotNull(updatedUser);
         assertEquals("John", updatedUser.getDisplayName());
@@ -72,11 +74,11 @@ class UserDaoTest {
                 "JApple123"
         );
 
-        int insertUserId = genericDao.insert(user);
+        int insertUserId = userDao.insert(user);
 
         assertTrue(insertUserId > 0);
 
-        User insertedUser = genericDao.getById(insertUserId);
+        User insertedUser = userDao.getById(insertUserId);
 
         assertNotNull(insertedUser);
         assertEquals("Johnny123", insertedUser.getDisplayName());
@@ -89,13 +91,13 @@ class UserDaoTest {
      */
     @Test
     void deleteSuccess() {
-        User userToDelete = genericDao.getById(1);
+        User userToDelete = userDao.getById(1);
 
         assertNotNull(userToDelete);
 
-        genericDao.delete(userToDelete);
+        userDao.delete(userToDelete);
 
-        assertNull(genericDao.getById(1));
+        assertNull(userDao.getById(1));
     }
 
     /**
@@ -104,7 +106,7 @@ class UserDaoTest {
      */
     @Test
     void deleteWithRecipesSuccess() {
-        User userToDelete = genericDao.getById(1);
+        User userToDelete = userDao.getById(1);
 
         assertNotNull(userToDelete);
 
@@ -118,11 +120,9 @@ class UserDaoTest {
         int recipeId1 = recipe1.getRecipeId();
         int recipeId2 = recipe2.getRecipeId();
 
-        genericDao.delete(userToDelete);
+        userDao.delete(userToDelete);
 
-        assertNull(genericDao.getById(1));
-
-        RecipeDao recipeDao = new RecipeDao();
+        assertNull(userDao.getById(1));
 
         assertNull(recipeDao.getById(recipeId1));
         assertNull(recipeDao.getById(recipeId2));
@@ -133,7 +133,7 @@ class UserDaoTest {
      */
     @Test
     void getAllSuccess() {
-        List<User> users = genericDao.getAll();
+        List<User> users = userDao.getAll();
 
         assertNotNull(users);
         assertEquals(2, users.size());
@@ -144,7 +144,7 @@ class UserDaoTest {
      */
     @Test
     void getByPropertyEqualSuccess() {
-        List<User> users = genericDao.getByPropertyEqual("displayName", "drew123");
+        List<User> users = userDao.getByPropertyEqual("displayName", "drew123");
 
         assertEquals(1, users.size());
         assertEquals("drew123", users.get(0).getDisplayName());
@@ -155,7 +155,7 @@ class UserDaoTest {
      */
     @Test
     void getByPropertyLikeSuccess() {
-        List<User> users = genericDao.getByPropertyLike("displayName", "drew123");
+        List<User> users = userDao.getByPropertyLike("displayName", "drew123");
 
         assertEquals(1, users.size());
         assertEquals("drew123", users.get(0).getDisplayName());
