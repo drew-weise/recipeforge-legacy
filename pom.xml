@@ -1,125 +1,154 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+            http://maven.apache.org/POM/4.0.0
+            http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>com.drewweise</groupId>
   <artifactId>recipeforge</artifactId>
-  <packaging>war</packaging>
   <version>1.0-SNAPSHOT</version>
-  <name>recipeforge Maven Webapp</name>
+  <packaging>war</packaging>
+
+  <name>RecipeForge Maven Webapp</name>
   <url>http://maven.apache.org</url>
 
   <properties>
     <maven.compiler.release>11</maven.compiler.release>
 
     <javax.version>7.0</javax.version>
-    <mysql-version>8.0.16</mysql-version>
-    <log4j-version>2.17.1</log4j-version>
+    <mysql.version>8.0.16</mysql.version>
+    <log4j.version>2.17.1</log4j.version>
+    <hibernate.version>6.4.3.Final</hibernate.version>
 
-    <junit.version>4.12</junit.version>
-    <junit-vintage-version>4.12.0</junit-vintage-version>
-    <jupiter-version>5.0.0</jupiter-version>
-    <junit-platform-runner-version>1.0.0</junit-platform-runner-version>
+    <junit4.version>4.12</junit4.version>
+    <junit.jupiter.version>5.0.0</junit.jupiter.version>
+    <junit.vintage.version>4.12.0</junit.vintage.version>
+    <junit.platform.version>1.0.0</junit.platform.version>
 
-    <maven-compiler-plugin-version>3.8.1</maven-compiler-plugin-version>
-    <maven-surefire-plugin-version>2.19</maven-surefire-plugin-version>
-
-    <hibernate-version>6.4.3.Final</hibernate-version>
+    <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
+    <maven.surefire.plugin.version>2.19</maven.surefire.plugin.version>
   </properties>
 
   <dependencies>
+
+    <!-- Java EE Web API -->
     <dependency>
       <groupId>javax</groupId>
       <artifactId>javaee-web-api</artifactId>
       <version>${javax.version}</version>
     </dependency>
 
-    <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+    <!-- MySQL -->
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
-      <version>${mysql-version}</version>
+      <version>${mysql.version}</version>
     </dependency>
+
+    <!-- JSTL -->
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
       <version>1.2</version>
     </dependency>
 
-    <!-- Log4j Dependencies -->
+    <!-- Log4j -->
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <version>${log4j-version}</version>
+      <version>${log4j.version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>${log4j-version}</version>
+      <version>${log4j.version}</version>
     </dependency>
 
-    <!-- JUnit Dependencies -->
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-runner</artifactId>
-      <version>${junit-platform-runner-version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
-      <version>${junit-vintage-version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>${jupiter-version}</version>
-      <scope>test</scope>
-    </dependency>
+    <!-- JUnit 4 -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
+      <version>${junit4.version}</version>
       <scope>test</scope>
     </dependency>
 
-    <!-- Hibernate Dependencies -->
-    <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+    <!-- JUnit Platform -->
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-runner</artifactId>
+      <version>${junit.platform.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- JUnit 5 -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit.jupiter.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Allows JUnit 4 tests to run on the JUnit Platform -->
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <version>${junit.vintage.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Hibernate -->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
-      <version>${hibernate-version}</version>
+      <version>${hibernate.version}</version>
     </dependency>
-    <!-- c3p0 - used to handle connection pooling with hibernate -->
-    <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-c3p0 -->
+
+    <!-- Hibernate connection pooling -->
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-c3p0</artifactId>
-      <version>${hibernate-version}</version>
+      <version>${hibernate.version}</version>
     </dependency>
+
   </dependencies>
 
   <build>
     <finalName>recipeforge</finalName>
+
     <pluginManagement>
       <plugins>
+
+        <!-- Java compiler -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>${maven-compiler-plugin-version}</version>
+          <version>${maven.compiler.plugin.version}</version>
         </plugin>
+
+        <!-- Test runner -->
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>${maven-surefire-plugin-version}</version>
+          <version>${maven.surefire.plugin.version}</version>
+
           <dependencies>
             <dependency>
               <groupId>org.junit.platform</groupId>
-              <artifactId>junit-platform-surefire-provider</artifactId>
-              <version>${junit-platform-runner-version}</version>
+              <artifactId>
+                junit-platform-surefire-provider
+              </artifactId>
+              <version>${junit.platform.version}</version>
             </dependency>
           </dependencies>
         </plugin>
+
       </plugins>
     </pluginManagement>
   </build>
+
 </project>
