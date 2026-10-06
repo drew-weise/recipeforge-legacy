@@ -27,7 +27,7 @@ public class Recipe {
 
     /** The recipe's recipeInstruction. */
     @Column(name = "instructions")
-    private String recipeInstruction;
+    private String recipeInstructions;
 
     /** The recipe's recipeServings. */
     @Column(name = "servings")
@@ -47,14 +47,14 @@ public class Recipe {
      *
      * @param recipeTitle       the recipe title
      * @param recipeDescription the recipe description
-     * @param recipeInstruction the recipe instruction
+     * @param recipeInstructions the recipe instruction
      * @param recipeServings    the recipe servings
      * @param user              the user
      */
-    public Recipe(String recipeTitle, String recipeDescription, String recipeInstruction, int recipeServings, User user) {
+    public Recipe(String recipeTitle, String recipeDescription, String recipeInstructions, int recipeServings, User user) {
         this.recipeTitle = recipeTitle;
         this.recipeDescription = recipeDescription;
-        this.recipeInstruction = recipeInstruction;
+        this.recipeInstructions = recipeInstructions;
         this.recipeServings = recipeServings;
         this.user = user;
     }
@@ -81,10 +81,10 @@ public class Recipe {
     public void setRecipeDescription(String recipeDescription) {this.recipeDescription = recipeDescription;}
 
     /** @return the recipe instruction */
-    public String getRecipeInstruction() {return recipeInstruction;}
+    public String getRecipeInstructions() {return recipeInstructions;}
 
     /** Sets the recipe instruction. */
-    public void setRecipeInstruction(String recipeInstruction) {this.recipeInstruction = recipeInstruction;}
+    public void setRecipeInstructions (String recipeInstructions) {this.recipeInstructions = recipeInstructions;}
 
     /** @return the recipe servings */
     public int getRecipeServings() {return recipeServings;}
@@ -98,7 +98,7 @@ public class Recipe {
                 "recipeId=" + recipeId +
                 ", recipeTitle='" + recipeTitle + '\'' +
                 ", recipeDescription='" + recipeDescription + '\'' +
-                ", recipeInstruction='" + recipeInstruction + '\'' +
+                ", recipeInstruction='" + recipeInstructions + '\'' +
                 ", recipeServings=" + recipeServings +
                 '}';
     }
