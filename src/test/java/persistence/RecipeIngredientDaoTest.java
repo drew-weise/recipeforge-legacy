@@ -9,12 +9,18 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * The type Recipe ingredient dao test.
+ */
 class RecipeIngredientDaoTest {
 
     private GenericDao<RecipeIngredient> recipeIngredientDao;
     private GenericDao<Recipe> recipeDao;
     private GenericDao<Ingredient> ingredientDao;
 
+    /**
+     * Sets up.
+     */
     @BeforeEach
     void setUp() {
         recipeIngredientDao = new GenericDao<>(RecipeIngredient.class);
@@ -25,6 +31,9 @@ class RecipeIngredientDaoTest {
         database.runSQL("CleanDB.sql");
     }
 
+    /**
+     * Insert success.
+     */
     @Test
     void insertSuccess() {
         Recipe recipe = recipeDao.getById(1);
@@ -46,6 +55,9 @@ class RecipeIngredientDaoTest {
         assertEquals(4, insertedRecipeIngredient.getIngredient().getIngredientId());
     }
 
+    /**
+     * Update success.
+     */
     @Test
     void updateSuccess() {
         Recipe recipe = recipeDao.getById(1);
@@ -66,6 +78,9 @@ class RecipeIngredientDaoTest {
         assertEquals("3 cups", updatedRecipeIngredient.getAmount());
     }
 
+    /**
+     * Delete success.
+     */
     @Test
     void deleteSuccess() {
         Recipe recipe = recipeDao.getById(1);

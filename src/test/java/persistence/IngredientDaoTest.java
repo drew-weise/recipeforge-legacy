@@ -9,10 +9,16 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * The type Ingredient dao test.
+ */
 class IngredientDaoTest {
 
     private GenericDao<Ingredient> ingredientDao;
 
+    /**
+     * Sets up.
+     */
     @BeforeEach
     void setUp() {
         ingredientDao = new GenericDao<>(Ingredient.class);
@@ -21,6 +27,9 @@ class IngredientDaoTest {
         database.runSQL("CleanDB.sql");
     }
 
+    /**
+     * Gets by id success.
+     */
     @Test
     void getByIdSuccess() {
         Ingredient ingredient = ingredientDao.getById(1);
@@ -29,6 +38,9 @@ class IngredientDaoTest {
         assertEquals("Flour", ingredient.getIngredientName());
     }
 
+    /**
+     * Insert success.
+     */
     @Test
     void insertSuccess() {
         Ingredient ingredient = new Ingredient("Butter");
@@ -43,6 +55,9 @@ class IngredientDaoTest {
         assertEquals("Butter", insertedIngredient.getIngredientName());
     }
 
+    /**
+     * Update success.
+     */
     @Test
     void updateSuccess() {
         Ingredient ingredientToUpdate = ingredientDao.getById(1);
@@ -55,6 +70,9 @@ class IngredientDaoTest {
         assertEquals("Whole Wheat Flour", updatedIngredient.getIngredientName());
     }
 
+    /**
+     * Delete success.
+     */
     @Test
     void deleteSuccess() {
         Ingredient ingredientToDelete = ingredientDao.getById(1);
@@ -67,6 +85,9 @@ class IngredientDaoTest {
         assertNull(ingredientDao.getById(ingredientId));
     }
 
+    /**
+     * Gets all success.
+     */
     @Test
     void getAllSuccess() {
         List<Ingredient> ingredients = ingredientDao.getAll();
@@ -75,6 +96,9 @@ class IngredientDaoTest {
         assertEquals(16, ingredients.size());
     }
 
+    /**
+     * Gets by property equal success.
+     */
     @Test
     void getByPropertyEqualSuccess() {
         List<Ingredient> ingredients = ingredientDao.getByPropertyEqual("ingredientName", "Flour");
