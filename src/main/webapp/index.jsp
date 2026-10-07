@@ -1,57 +1,49 @@
 <%@ include file="taglib.jsp" %>
-<c:set var="title" value="Users" />
+<c:set var="title" value="RecipeForge Recipes" />
 <%@ include file="head.jsp" %>
 
 <script type="text/javascript" class="init">
     $(document).ready(function () {
-        $('#userTable').DataTable();
+        $('#recipeTable').DataTable();
     });
 </script>
 
 <body>
-<h1>Users</h1>
+<h1>RecipeForge Recipes</h1>
 
 <div class="container-fluid">
-    <table id="userTable" class="display" cellspacing="0" width="100%">
+    <table id="recipeTable" class="display" cellspacing="0" width="100%">
         <thead>
         <tr>
-            <th>Display Name</th>
-            <th>Recipes</th>
+            <th>User</th>
+            <th>Recipe</th>
+            <th>Servings</th>
+            <th>Description</th>
+            <th>Ingredients</th>
         </tr>
         </thead>
 
         <tbody>
         <c:forEach var="user" items="${users}">
-            <tr>
-                <td>${user.displayName}</td>
+            <c:forEach var="recipe" items="${user.recipes}">
+                <tr>
+                    <td>${user.displayName}</td>
+                    <td>${recipe.recipeTitle}</td>
+                    <td>${recipe.recipeServings}</td>
+                    <td>${recipe.recipeDescription}</td>
 
-                <td>
-                    <c:forEach var="recipe" items="${user.recipes}">
-                        <ul>
-                            <li>${recipe.recipeTitle}</li>
-                            <li>Servings: ${recipe.recipeServings}</li>
-                            <li>${recipe.recipeDescription}</li>
-                            <li>${recipe.recipeInstructions}</li>
+                    <td>
+                        <c:forEach
+                                var="recipeIngredient"
+                                items="${recipe.recipeIngredients}">
 
-                            <li>
-                                Ingredients:
-                                <ul>
-                                    <c:forEach
-                                            var="recipeIngredient"
-                                            items="${recipe.recipeIngredients}">
+                            ${recipeIngredient.amount}
+                            ${recipeIngredient.ingredient.ingredientName}<br>
 
-                                        <li>
-                                                ${recipeIngredient.amount}
-                                                ${recipeIngredient.ingredient.ingredientName}
-                                        </li>
-
-                                    </c:forEach>
-                                </ul>
-                            </li>
-                        </ul>
-                    </c:forEach>
-                </td>
-            </tr>
+                        </c:forEach>
+                    </td>
+                </tr>
+            </c:forEach>
         </c:forEach>
         </tbody>
     </table>
