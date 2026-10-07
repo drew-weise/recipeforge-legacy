@@ -2,7 +2,7 @@ USE recipeforge_test;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS recipe_ingredients;
+DROP TABLE IF EXISTS recipe_ingredient;
 DROP TABLE IF EXISTS recipes;
 DROP TABLE IF EXISTS ingredients;
 DROP TABLE IF EXISTS users;
@@ -40,6 +40,7 @@ CREATE TABLE recipes (
                          servings INT,
                          PRIMARY KEY (recipe_id),
                          KEY user_id (user_id),
+
                          CONSTRAINT recipes_ibfk_1
                              FOREIGN KEY (user_id)
                                  REFERENCES users (user_id)
@@ -122,17 +123,24 @@ VALUES
 
 
 CREATE TABLE recipe_ingredient (
-                                    recipe_id INT NOT NULL,
-                                    ingredient_id INT NOT NULL,
-                                    amount VARCHAR(100) NOT NULL,
-                                    PRIMARY KEY (recipe_id, ingredient_id),
-                                    CONSTRAINT recipe_ingredient_ibfk_1
-                                        FOREIGN KEY (recipe_id)
-                                            REFERENCES recipes (recipe_id)
-                                            ON DELETE CASCADE,
-                                    CONSTRAINT recipe_ingredient_ibfk_2
-                                        FOREIGN KEY (ingredient_id)
-                                            REFERENCES ingredients (ingredient_id)
+                                   recipe_ingredient_id INT NOT NULL AUTO_INCREMENT,
+                                   recipe_id INT NOT NULL,
+                                   ingredient_id INT NOT NULL,
+                                   amount VARCHAR(100) NOT NULL,
+
+                                   PRIMARY KEY (recipe_ingredient_id),
+
+                                   UNIQUE KEY recipe_ingredient_unique (recipe_id, ingredient_id),
+
+                                   CONSTRAINT recipe_ingredient_ibfk_1
+                                       FOREIGN KEY (recipe_id)
+                                           REFERENCES recipes (recipe_id)
+                                           ON DELETE CASCADE,
+
+                                   CONSTRAINT recipe_ingredient_ibfk_2
+                                       FOREIGN KEY (ingredient_id)
+                                           REFERENCES ingredients (ingredient_id)
+                                           ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
 

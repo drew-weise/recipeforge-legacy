@@ -11,7 +11,7 @@ public class Ingredient {
     @Column(name = "ingredient_id")
     private int ingredientId;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "ingredient", nullable = false, unique = true)
     private String ingredientName;
 
     public Ingredient() {

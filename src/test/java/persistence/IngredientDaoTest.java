@@ -37,8 +37,7 @@ class IngredientDaoTest {
 
         assertTrue(insertedIngredientId > 0);
 
-        Ingredient insertedIngredient =
-                ingredientDao.getById(insertedIngredientId);
+        Ingredient insertedIngredient = ingredientDao.getById(insertedIngredientId);
 
         assertNotNull(insertedIngredient);
         assertEquals("Butter", insertedIngredient.getIngredientName());
@@ -53,10 +52,7 @@ class IngredientDaoTest {
 
         Ingredient updatedIngredient = ingredientDao.getById(1);
 
-        assertEquals(
-                "Whole Wheat Flour",
-                updatedIngredient.getIngredientName()
-        );
+        assertEquals("Whole Wheat Flour", updatedIngredient.getIngredientName());
     }
 
     @Test
@@ -81,8 +77,7 @@ class IngredientDaoTest {
 
     @Test
     void getByPropertyEqualSuccess() {
-        List<Ingredient> ingredients =
-                ingredientDao.getByPropertyEqual("ingredientName", "Flour");
+        List<Ingredient> ingredients = ingredientDao.getByPropertyEqual("ingredientName", "Flour");
 
         assertEquals(1, ingredients.size());
         assertEquals("Flour", ingredients.get(0).getIngredientName());

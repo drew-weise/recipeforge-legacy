@@ -28,72 +28,59 @@ class RecipeIngredientDaoTest {
     @Test
     void insertSuccess() {
         Recipe recipe = recipeDao.getById(1);
-        Ingredient ingredient = ingredientDao.getById(1);
+        Ingredient ingredient = ingredientDao.getById(4);
 
-        RecipeIngredient recipeIngredient =
-                new RecipeIngredient(recipe, ingredient, "2 cups");
+        RecipeIngredient recipeIngredient = new RecipeIngredient(recipe, ingredient, "2 cups");
 
-        int insertedRecipeIngredientId =
-                recipeIngredientDao.insert(recipeIngredient);
+        int insertedRecipeIngredientId = recipeIngredientDao.insert(recipeIngredient);
 
         assertTrue(insertedRecipeIngredientId > 0);
 
-        RecipeIngredient insertedRecipeIngredient =
-                recipeIngredientDao.getById(insertedRecipeIngredientId);
+        RecipeIngredient insertedRecipeIngredient = recipeIngredientDao.getById(insertedRecipeIngredientId);
 
         assertNotNull(insertedRecipeIngredient);
         assertEquals("2 cups", insertedRecipeIngredient.getAmount());
-        assertEquals(
-                1,
-                insertedRecipeIngredient.getRecipe().getRecipeId()
-        );
-        assertEquals(
-                1,
-                insertedRecipeIngredient.getIngredient().getIngredientId()
-        );
+
+        assertEquals(1, insertedRecipeIngredient.getRecipe().getRecipeId());
+
+        assertEquals(4, insertedRecipeIngredient.getIngredient().getIngredientId());
     }
 
     @Test
     void updateSuccess() {
         Recipe recipe = recipeDao.getById(1);
-        Ingredient ingredient = ingredientDao.getById(1);
+        Ingredient ingredient = ingredientDao.getById(4);
 
-        RecipeIngredient recipeIngredient =
-                new RecipeIngredient(recipe, ingredient, "2 cups");
+        RecipeIngredient recipeIngredient = new RecipeIngredient(recipe, ingredient, "2 cups");
 
-        int insertedRecipeIngredientId =
-                recipeIngredientDao.insert(recipeIngredient);
+        int insertedRecipeIngredientId = recipeIngredientDao.insert(recipeIngredient);
 
-        RecipeIngredient recipeIngredientToUpdate =
-                recipeIngredientDao.getById(insertedRecipeIngredientId);
+        RecipeIngredient recipeIngredientToUpdate = recipeIngredientDao.getById(insertedRecipeIngredientId);
 
         recipeIngredientToUpdate.setAmount("3 cups");
         recipeIngredientDao.update(recipeIngredientToUpdate);
 
-        RecipeIngredient updatedRecipeIngredient =
-                recipeIngredientDao.getById(insertedRecipeIngredientId);
+        RecipeIngredient updatedRecipeIngredient = recipeIngredientDao.getById(insertedRecipeIngredientId);
 
+        assertNotNull(updatedRecipeIngredient);
         assertEquals("3 cups", updatedRecipeIngredient.getAmount());
     }
 
     @Test
     void deleteSuccess() {
         Recipe recipe = recipeDao.getById(1);
-        Ingredient ingredient = ingredientDao.getById(1);
+        Ingredient ingredient = ingredientDao.getById(4);
 
-        RecipeIngredient recipeIngredient =
-                new RecipeIngredient(recipe, ingredient, "2 cups");
+        RecipeIngredient recipeIngredient = new RecipeIngredient(recipe, ingredient, "2 cups");
 
-        int insertedRecipeIngredientId =
-                recipeIngredientDao.insert(recipeIngredient);
+        int insertedRecipeIngredientId = recipeIngredientDao.insert(recipeIngredient);
 
-        RecipeIngredient recipeIngredientToDelete =
-                recipeIngredientDao.getById(insertedRecipeIngredientId);
+        RecipeIngredient recipeIngredientToDelete = recipeIngredientDao.getById(insertedRecipeIngredientId);
+
+        assertNotNull(recipeIngredientToDelete);
 
         recipeIngredientDao.delete(recipeIngredientToDelete);
 
-        assertNull(
-                recipeIngredientDao.getById(insertedRecipeIngredientId)
-        );
+        assertNull(recipeIngredientDao.getById(insertedRecipeIngredientId));
     }
 }
