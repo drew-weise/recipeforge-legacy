@@ -16,6 +16,8 @@
 
         <mapping class="entity.User"/>
         <mapping class="entity.Recipe"/>
+        <mapping class="entity.Ingredient"/>
+        <mapping class="entity.RecipeIngredient"/>
 
     </session-factory>
 
