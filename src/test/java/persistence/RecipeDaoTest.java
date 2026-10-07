@@ -99,9 +99,23 @@ class RecipeDaoTest {
      */
     @Test
     void deleteSuccess() {
-        recipeDao.delete(recipeDao.getById(1));
+        User user = userDao.getById(1);
+        assertNotNull(user);
 
-        assertNull(recipeDao.getById(1));
+        Recipe recipeToDelete = user.getRecipes().get(1);
+        int recipeId = recipeToDelete.getRecipeId();
+
+        assertNotNull(recipeDao.getById(recipeId));
+
+        recipeDao.delete(recipeToDelete);
+
+        assertNull(recipeDao.getById(recipeId));
+
+        User updatedUser = userDao.getById(1);
+        assertEquals(1, updatedUser.getRecipes().size());
+
+        assertNotNull(user);
+
     }
 
     /**
