@@ -42,7 +42,7 @@ public class Recipe {
     private User user;
 
     /** The recipe's recipeIngredients. */
-    @OneToMany(mappedBy = "recipe")
+    @OneToMany(mappedBy = "recipe", fetch = FetchType.EAGER)
     private List<RecipeIngredient> recipeIngredients = new ArrayList<>();
 
     /** Required by Hibernate. */

@@ -23,7 +23,7 @@ public class RecipeIngredient {
     private Recipe recipe;
 
     /** The recipe ingredient's ingredient. */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "ingredient_id", nullable = false)
     private Ingredient ingredient;
 
