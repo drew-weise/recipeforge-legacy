@@ -2,6 +2,9 @@ package entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "recipes")
 /**
@@ -38,6 +41,10 @@ public class Recipe {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    /** The recipe's recipeIngredients. */
+    @OneToMany(mappedBy = "recipe")
+    private List<RecipeIngredient> recipeIngredients = new ArrayList<>();
+
     /** Required by Hibernate. */
     public Recipe() {
     }
@@ -45,13 +52,14 @@ public class Recipe {
     /**
      * Creates a new Recipe.
      *
-     * @param recipeTitle       the recipe title
-     * @param recipeDescription the recipe description
+     * @param recipeTitle        the recipe title
+     * @param recipeDescription  the recipe description
      * @param recipeInstructions the recipe instruction
-     * @param recipeServings    the recipe servings
-     * @param user              the user
+     * @param recipeServings     the recipe servings
+     * @param user               the user
      */
-    public Recipe(String recipeTitle, String recipeDescription, String recipeInstructions, int recipeServings, User user) {
+    public Recipe(String recipeTitle, String recipeDescription,
+                  String recipeInstructions, int recipeServings, User user) {
         this.recipeTitle = recipeTitle;
         this.recipeDescription = recipeDescription;
         this.recipeInstructions = recipeInstructions;
@@ -84,13 +92,19 @@ public class Recipe {
     public String getRecipeInstructions() {return recipeInstructions;}
 
     /** Sets the recipe instruction. */
-    public void setRecipeInstructions (String recipeInstructions) {this.recipeInstructions = recipeInstructions;}
+    public void setRecipeInstructions(String recipeInstructions) {this.recipeInstructions = recipeInstructions;}
 
     /** @return the recipe servings */
     public int getRecipeServings() {return recipeServings;}
 
     /** Sets the recipe servings. */
     public void setRecipeServings(int recipeServings) {this.recipeServings = recipeServings;}
+
+    /** @return the recipe ingredients */
+    public List<RecipeIngredient> getRecipeIngredients() {return recipeIngredients;}
+
+    /** Sets the recipe ingredients. */
+    public void setRecipeIngredients(List<RecipeIngredient> recipeIngredients) {this.recipeIngredients = recipeIngredients;}
 
     @Override
     public String toString() {
