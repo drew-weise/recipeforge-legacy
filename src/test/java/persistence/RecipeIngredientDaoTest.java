@@ -7,6 +7,8 @@ import entity.RecipeIngredient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -97,5 +99,53 @@ class RecipeIngredientDaoTest {
         recipeIngredientDao.delete(recipeIngredientToDelete);
 
         assertNull(recipeIngredientDao.getById(insertedRecipeIngredientId));
+    }
+
+    /**
+     * Gets by id success.
+     */
+    @Test
+    void getByIdSuccess() {
+        RecipeIngredient recipeIngredient = recipeIngredientDao.getById(1);
+
+        assertNotNull(recipeIngredient);
+        assertEquals("2 cups", recipeIngredient.getAmount());
+        assertEquals(1, recipeIngredient.getRecipe().getRecipeId());
+        assertEquals(1, recipeIngredient.getIngredient().getIngredientId());
+    }
+
+    /**
+     * Gets all success.
+     */
+    @Test
+    void getAllSuccess() {
+        List<RecipeIngredient> recipeIngredients =
+                recipeIngredientDao.getAll();
+
+        assertNotNull(recipeIngredients);
+        assertEquals(19, recipeIngredients.size());
+    }
+
+    /**
+     * Gets by property equal success.
+     */
+    @Test
+    void getByPropertyEqualSuccess() {
+        List<RecipeIngredient> recipeIngredients =
+                recipeIngredientDao.getByPropertyEqual("amount", "2 cups");
+
+        assertEquals(1, recipeIngredients.size());
+        assertEquals("2 cups", recipeIngredients.get(0).getAmount());
+    }
+
+    /**
+     * Gets by property like success.
+     */
+    @Test
+    void getByPropertyLikeSuccess() {
+        List<RecipeIngredient> recipeIngredients =
+                recipeIngredientDao.getByPropertyLike("amount", "cup");
+
+        assertEquals(5, recipeIngredients.size());
     }
 }

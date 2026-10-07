@@ -1,5 +1,6 @@
 package persistence;
 
+import entity.Ingredient;
 import entity.Recipe;
 import entity.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,7 @@ class RecipeDaoTest {
 
     private GenericDao<Recipe> recipeDao;
     private GenericDao<User> userDao;
+    private GenericDao<Ingredient> ingredientDao;
 
     /**
      * Resets the test database and creates a new RecipeDao/UserDao
@@ -28,6 +30,7 @@ class RecipeDaoTest {
 
         recipeDao = new GenericDao<>(Recipe.class);
         userDao = new GenericDao<>(User.class);
+        ingredientDao = new GenericDao<>(Ingredient.class);
 
         Database database = Database.getInstance();
         database.runSQL("CleanDB.sql");
@@ -116,6 +119,24 @@ class RecipeDaoTest {
 
         assertNotNull(user);
 
+    }
+
+    @Test
+    void deleteRecipeKeepsIngredientsSuccess() {
+        Recipe recipeToDelete = recipeDao.getById(1);
+        Ingredient flour = ingredientDao.getById(1);
+
+        assertNotNull(recipeToDelete);
+        assertNotNull(flour);
+
+        recipeDao.delete(recipeToDelete);
+
+        assertNull(recipeDao.getById(1));
+
+        Ingredient flourAfterRecipeDelete = ingredientDao.getById(1);
+
+        assertNotNull(flourAfterRecipeDelete);
+        assertEquals("Flour", flourAfterRecipeDelete.getIngredientName());
     }
 
     /**

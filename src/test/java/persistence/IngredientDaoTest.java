@@ -106,4 +106,16 @@ class IngredientDaoTest {
         assertEquals(1, ingredients.size());
         assertEquals("Flour", ingredients.get(0).getIngredientName());
     }
+
+    /**
+     * Gets by property like success.
+     */
+    @Test
+    void getByPropertyLikeSuccess() {
+        List<Ingredient> ingredients =
+                ingredientDao.getByPropertyLike("ingredientName", "oil");
+
+        assertEquals(1, ingredients.size());
+        assertEquals("Olive Oil", ingredients.get(0).getIngredientName());
+    }
 }
