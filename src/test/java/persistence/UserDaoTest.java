@@ -29,7 +29,7 @@ class UserDaoTest {
         recipeDao = new GenericDao<>(Recipe.class);
 
         Database database = Database.getInstance();
-        database.runSQL("CleanUsersAndRecipesDB.sql");
+        database.runSQL("CleanDB.sql");
     }
 
     /**
