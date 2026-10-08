@@ -20,7 +20,7 @@ public class User {
     private int userId;
     /** The user's displayName. */
 
-    @Column(name = "display_name", nullable = false, unique = true)
+    @Column(name = "display_name", nullable = false)
     private String displayName;
 
     /** The user's email address. */
