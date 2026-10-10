@@ -1,6 +1,6 @@
 package persistence;
 
-import Util.Database;
+import util.Database;
 import entity.Ingredient;
 import entity.Recipe;
 import entity.RecipeIngredient;

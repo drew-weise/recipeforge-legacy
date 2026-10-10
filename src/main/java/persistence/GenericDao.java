@@ -1,6 +1,6 @@
 package persistence;
 
-import Util.SessionFactoryProvider;
+import util.SessionFactoryProvider;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Root;

@@ -5,7 +5,7 @@ import entity.Recipe;
 import entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import Util.Database;
+import util.Database;
 
 import java.util.List;
 
