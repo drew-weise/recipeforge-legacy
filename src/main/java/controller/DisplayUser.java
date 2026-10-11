@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@WebServlet("/displayUsers")
+@WebServlet(urlPatterns = {"/displayUser"})
 public class DisplayUser extends HttpServlet {
 
     @Override
@@ -22,8 +22,7 @@ public class DisplayUser extends HttpServlet {
 
         req.setAttribute("users", userDao.getAll());
 
-        RequestDispatcher dispatcher =
-                req.getRequestDispatcher("/index.jsp");
+        RequestDispatcher dispatcher = req.getRequestDispatcher("/user.jsp");
 
         dispatcher.forward(req, resp);
     }

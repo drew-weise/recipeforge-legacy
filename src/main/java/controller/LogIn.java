@@ -1,6 +1,6 @@
 package controller;
 
-import edu.matc.util.PropertiesLoader;
+import util.PropertiesLoader;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,8 +44,6 @@ public class LogIn extends HttpServlet implements PropertiesLoader {
             CLIENT_ID = properties.getProperty("client.id");
             LOGIN_URL = properties.getProperty("loginURL");
             REDIRECT_URL = properties.getProperty("redirectURL");
-        } catch (IOException ioException) {
-            logger.error("Cannot load properties..." + ioException.getMessage(), ioException);
         } catch (Exception e) {
             logger.error("Error loading properties" + e.getMessage(), e);
         }
