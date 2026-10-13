@@ -7,7 +7,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import auth.*;
-import util.PropertiesLoader;
 import org.apache.commons.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,23 +39,15 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 
-@WebServlet(
-        urlPatterns = {"/auth"}
-)
+@WebServlet(urlPatterns = {"/auth"})
+
 // TODO if something goes wrong it this process, route to an error page. Currently, errors are only caught and logged.
 /**
  * Inspired by: https://stackoverflow.com/questions/52144721/how-to-get-access-token-using-client-credentials-using-java-code
  */
 
-public class Auth extends HttpServlet implements PropertiesLoader {
-    Properties properties;
-    String CLIENT_ID;
-    String CLIENT_SECRET;
-    String OAUTH_URL;
-    String LOGIN_URL;
-    String REDIRECT_URL;
-    String REGION;
-    String POOL_ID;
+public class Auth extends HttpServlet {
+    Properties cognito;
     Keys jwks;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
@@ -64,7 +55,7 @@ public class Auth extends HttpServlet implements PropertiesLoader {
     @Override
     public void init() throws ServletException {
         super.init();
-        loadProperties();
+        cognito = (Properties) getServletContext().getAttribute("cognitoProperties");
         loadKey();
     }
 
@@ -161,7 +152,7 @@ public class Auth extends HttpServlet implements PropertiesLoader {
         Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, null);
 
         // Verify ISS field of the token to make sure it's from the Cognito source
-        String iss = String.format("https://cognito-idp.%s.amazonaws.com/%s", REGION, POOL_ID);
+        String iss = String.format("https://cognito-idp.%s.amazonaws.com/%s", cognito.getProperty("region"), cognito.getProperty("poolId"));
 
         JWTVerifier verifier = JWT.require(algorithm)
                 .withIssuer(iss)
@@ -187,22 +178,25 @@ public class Auth extends HttpServlet implements PropertiesLoader {
      * @return the constructed oauth request
      */
     private HttpRequest buildAuthRequest(String authCode) {
-        String keys = CLIENT_ID + ":" + CLIENT_SECRET;
+        String keys = cognito.getProperty("client.id") + ":" + cognito.getProperty("client.secret");
 
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("grant_type", "authorization_code");
-        parameters.put("client-secret", CLIENT_SECRET);
-        parameters.put("client_id", CLIENT_ID);
+        parameters.put("client-secret", cognito.getProperty("client.secret"));
+        parameters.put("client_id", cognito.getProperty("client.id"));
         parameters.put("code", authCode);
-        parameters.put("redirect_uri", REDIRECT_URL);
+        parameters.put("redirect_uri", cognito.getProperty("redirectURL"));
 
-        String form = parameters.keySet().stream()
+        String form = parameters
+                .keySet()
+                .stream()
                 .map(key -> key + "=" + URLEncoder.encode(parameters.get(key), StandardCharsets.UTF_8))
                 .collect(Collectors.joining("&"));
 
         String encoding = Base64.getEncoder().encodeToString(keys.getBytes());
 
-        HttpRequest request = HttpRequest.newBuilder().uri(URI.create(OAUTH_URL))
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(cognito.getProperty("redirectURL")))
                 .headers("Content-Type", "application/x-www-form-urlencoded", "Authorization", "Basic " + encoding)
                 .POST(HttpRequest.BodyPublishers.ofString(form)).build();
         return request;
@@ -222,7 +216,9 @@ public class Auth extends HttpServlet implements PropertiesLoader {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
-            URL jwksURL = new URL(String.format("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json", REGION, POOL_ID));
+            URL jwksURL = new URL(String.format("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json",
+                    cognito.getProperty("region"), cognito.getProperty("poolId")));
+
             File jwksFile = new File("jwks.json");
             FileUtils.copyURLToFile(jwksURL, jwksFile);
             jwks = mapper.readValue(jwksFile, Keys.class);
@@ -231,26 +227,6 @@ public class Auth extends HttpServlet implements PropertiesLoader {
             logger.error("Cannot load json..." + ioException.getMessage(), ioException);
         } catch (Exception e) {
             logger.error("Error loading json" + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Read in the cognito props file and get/set the client id, secret, and required urls
-     * for authenticating a user.
-     */
-    // TODO This code appears in a couple classes, consider using a startup servlet similar to adv java project
-    private void loadProperties() {
-        try {
-            properties = loadProperties("/cognito.properties");
-            CLIENT_ID = properties.getProperty("client.id");
-            CLIENT_SECRET = properties.getProperty("client.secret");
-            OAUTH_URL = properties.getProperty("oauthURL");
-            LOGIN_URL = properties.getProperty("loginURL");
-            REDIRECT_URL = properties.getProperty("redirectURL");
-            REGION = properties.getProperty("region");
-            POOL_ID = properties.getProperty("poolId");
-        } catch (Exception e) {
-            logger.error("Error loading properties" + e.getMessage(), e);
         }
     }
 }
