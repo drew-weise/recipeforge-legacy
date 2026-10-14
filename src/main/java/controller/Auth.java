@@ -164,9 +164,6 @@ public class Auth extends HttpServlet {
 
         logger.debug("here are all the available claims: " + jwt.getClaims());
 
-        // TODO decide what you want to do with the info!
-        // for now, I'm just returning username for display back to the browser
-
         return email;
     }
 
