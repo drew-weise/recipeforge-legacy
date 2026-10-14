@@ -14,7 +14,6 @@ CREATE TABLE users (
                        user_id INT NOT NULL AUTO_INCREMENT,
                        display_name VARCHAR(50) NOT NULL,
                        email VARCHAR(255) NOT NULL,
-                       password_hash VARCHAR(255) NOT NULL,
                        PRIMARY KEY (user_id),
                        UNIQUE KEY email (email)
 ) ENGINE = InnoDB;
@@ -23,12 +22,11 @@ CREATE TABLE users (
 INSERT INTO users (
     user_id,
     display_name,
-    email,
-    password_hash
+    email
 )
 VALUES
-    (1, 'drew123', 'drew@example.com', 'test-password-hash-1'),
-    (2, 'alex456', 'alex@example.com', 'test-password-hash-2');
+    (1, 'drew123', 'drew@example.com'),
+    (2, 'alex456', 'alex@example.com');
 
 
 CREATE TABLE recipes (

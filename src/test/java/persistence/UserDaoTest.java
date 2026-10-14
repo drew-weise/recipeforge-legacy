@@ -70,8 +70,7 @@ class UserDaoTest {
     void insertSuccess() {
         User user = new User(
                 "Johnny123",
-                "Appleseed@gmail.com",
-                "JApple123"
+                "Appleseed@gmail.com"
         );
 
         int insertUserId = userDao.insert(user);

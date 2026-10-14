@@ -27,10 +27,6 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    /** The user's stored password hash. */
-    @Column(name = "password_hash", nullable = false)
-    private String passwordHash;
-
     @OneToMany(
             mappedBy = "user",
             cascade = CascadeType.ALL,
@@ -44,10 +40,9 @@ public class User {
     }
 
     /** Creates a user with the given account information. */
-    public User(String displayName, String email, String passwordHash) {
+    public User(String displayName, String email) {
         this.displayName = displayName;
         this.email = email;
-        this.passwordHash = passwordHash;
     }
 
     /** @return the user's ID */
@@ -79,15 +74,5 @@ public class User {
     /** Sets the user's email. */
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    /** @return the user's password hash */
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    /** Sets the user's password hash. */
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
     }
 }

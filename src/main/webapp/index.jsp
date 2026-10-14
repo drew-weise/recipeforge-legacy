@@ -5,11 +5,11 @@
 <body>
 
 <c:choose>
-    <c:when test="${empty userName}">
+    <c:when test="${empty email}">
         <a href = "logIn">Log in</a>
     </c:when>
     <c:otherwise>
-        <h3>Welcome ${sessionScope.userName}</h3>
+        <h3>Welcome ${email}</h3>
     </c:otherwise>
 </c:choose>
 

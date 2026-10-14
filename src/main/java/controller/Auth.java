@@ -69,16 +69,16 @@ public class Auth extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String authCode = req.getParameter("code");
-        String userName = null;
+        String email = null;
 
         if (authCode == null) {
             //TODO forward to an error page or back to the login
         } else {
-            HttpRequest authRequest = buildAuthRequest(authCode);
+            HttpRequest tokenRequest = buildAuthRequest(authCode);
             try {
-                TokenResponse tokenResponse = getToken(authRequest);
-                userName = validate(tokenResponse);
-                req.setAttribute("userName", userName);
+                TokenResponse tokenResponse = getToken(tokenRequest);
+                email = validate(tokenResponse);
+                req.setAttribute("email", email);
             } catch (IOException e) {
                 logger.error("Error getting or validating the token: " + e.getMessage(), e);
                 //TODO forward to an error page
@@ -89,32 +89,28 @@ public class Auth extends HttpServlet {
         }
         RequestDispatcher dispatcher = req.getRequestDispatcher("index.jsp");
         dispatcher.forward(req, resp);
-
     }
 
     /**
      * Sends the request for a token to Cognito and maps the response
-     * @param authRequest the request to the oauth2/token url in cognito
+     * @param tokenRequest the request to the oauth2/token url in cognito
      * @return response from the oauth2/token endpoint which should include id token, access token and refresh token
      * @throws IOException
      * @throws InterruptedException
      */
-    private TokenResponse getToken(HttpRequest authRequest) throws IOException, InterruptedException {
+    private TokenResponse getToken(HttpRequest tokenRequest) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<?> response = null;
 
-        response = client.send(authRequest, HttpResponse.BodyHandlers.ofString());
+        response = client.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
 
 
         logger.debug("Response headers: " + response.headers().toString());
-        logger.debug("Response body: " + response.body().toString());
 
         ObjectMapper mapper = new ObjectMapper();
         TokenResponse tokenResponse = mapper.readValue(response.body().toString(), TokenResponse.class);
-        logger.debug("Id token: " + tokenResponse.getIdToken());
 
         return tokenResponse;
-
     }
 
     /**
@@ -161,15 +157,17 @@ public class Auth extends HttpServlet {
 
         // Verify the token
         DecodedJWT jwt = verifier.verify(tokenResponse.getIdToken());
-        String userName = jwt.getClaim("cognito:username").asString();
-        logger.debug("here's the username: " + userName);
+        String email = jwt.getClaim("email").asString();
+
+
+        logger.debug("here's the username: " + email);
 
         logger.debug("here are all the available claims: " + jwt.getClaims());
 
         // TODO decide what you want to do with the info!
         // for now, I'm just returning username for display back to the browser
 
-        return userName;
+        return email;
     }
 
     /** Create the auth url and use it to build the request.
@@ -178,12 +176,10 @@ public class Auth extends HttpServlet {
      * @return the constructed oauth request
      */
     private HttpRequest buildAuthRequest(String authCode) {
-        String keys = cognito.getProperty("client.id") + ":" + cognito.getProperty("client.secret");
+        String clientCredentials = cognito.getProperty("client.id") + ":" + cognito.getProperty("client.secret");
 
         HashMap<String, String> parameters = new HashMap<>();
         parameters.put("grant_type", "authorization_code");
-        parameters.put("client-secret", cognito.getProperty("client.secret"));
-        parameters.put("client_id", cognito.getProperty("client.id"));
         parameters.put("code", authCode);
         parameters.put("redirect_uri", cognito.getProperty("redirectURL"));
 
@@ -193,26 +189,24 @@ public class Auth extends HttpServlet {
                 .map(key -> key + "=" + URLEncoder.encode(parameters.get(key), StandardCharsets.UTF_8))
                 .collect(Collectors.joining("&"));
 
-        String encoding = Base64.getEncoder().encodeToString(keys.getBytes());
+        String encoding = Base64.getEncoder().encodeToString(clientCredentials.getBytes());
 
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(cognito.getProperty("redirectURL")))
+        HttpRequest tokenRequest = HttpRequest.newBuilder()
+                .uri(URI.create(cognito.getProperty("oauthURL")))
                 .headers("Content-Type", "application/x-www-form-urlencoded", "Authorization", "Basic " + encoding)
                 .POST(HttpRequest.BodyPublishers.ofString(form)).build();
-        return request;
+        return tokenRequest;
     }
 
     /**
      * Gets the JSON Web Key Set (JWKS) for the user pool from cognito and loads it
      * into objects for easier use.
      *
-     * JSON Web Key Set (JWKS) location: https://cognito-idp.{region}.amazonaws.com/{userPoolId}/.well-known/jwks.json
-     * Demo url: https://cognito-idp.us-east-2.amazonaws.com/us-east-2_XaRYHsmKB/.well-known/jwks.json
-     *
      * @see Keys
      * @see KeysItem
      */
     private void loadKey() {
+
         ObjectMapper mapper = new ObjectMapper();
 
         try {

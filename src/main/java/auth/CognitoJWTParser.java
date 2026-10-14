@@ -107,7 +107,7 @@ public class CognitoJWTParser {
      * @param jwt REQUIRED: The JWT as a {@link String}.
      */
     public static void validateJWT(String jwt) {
-        // Check if the the JWT has the three parts
+        // Check if the JWT has the three parts
         final String[] jwtParts = jwt.split("\\.");
         if (jwtParts.length != JWT_PARTS) {
             throw new InvalidParameterException("not a JSON Web Token");
