@@ -44,3 +44,5 @@ build/
 /global-bundle.pem
 /src/main/resources/cognito.properties
 **/origin.key
+/origin.pem
+/.ebextensions/ssl-certs.config

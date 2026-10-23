@@ -158,12 +158,52 @@
           <dependencies>
             <dependency>
               <groupId>org.junit.platform</groupId>
-              <artifactId>
-                junit-platform-surefire-provider
-              </artifactId>
+              <artifactId>junit-platform-surefire-provider</artifactId>
               <version>${junit.platform.version}</version>
             </dependency>
           </dependencies>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>3.1.0</version>
+          <executions>
+            <execution>
+              <id>package-eb-zip</id>
+              <phase>package</phase>
+              <goals>
+                <goal>run</goal>
+              </goals>
+              <configuration>
+                <target>
+                  <echo message="Creating clean Elastic Beanstalk deployment zip..."/>
+                  <!-- Create a clean temporary directory in target -->
+                  <mkdir dir="${project.build.directory}/eb-staging"/>
+
+                  <!-- Copy EB config folders safely -->
+                  <copy todir="${project.build.directory}/eb-staging/.ebextensions">
+                    <fileset dir="${project.basedir}/.ebextensions"/>
+                  </copy>
+                  <copy todir="${project.build.directory}/eb-staging/.platform">
+                    <fileset dir="${project.basedir}/.platform"/>
+                  </copy>
+
+                  <!-- Copy compiled WAR file and automatically rename it to ROOT.war -->
+                  <copy file="${project.build.directory}/${project.build.finalName}.war"
+                        tofile="${project.build.directory}/eb-staging/ROOT.war"/>
+
+                  <!-- Zip it all up  -->
+                  <zip destfile="${project.basedir}/elastic-beanstalk-deploy.zip"
+                       basedir="${project.build.directory}/eb-staging"/>
+
+                  <!-- Clean up the temporary folder -->
+                  <delete dir="${project.build.directory}/eb-staging"/>
+                  <echo message="SUCCESS! Perfect deployment package created at root: elastic-beanstalk-deploy.zip"/>
+                </target>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
 
       </plugins>
