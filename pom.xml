@@ -114,14 +114,13 @@
       <version>${java-jwt.version}</version>
     </dependency>
 
-    <!-- Jackson annotations used by the Cognito token classes -->
+    <!-- Jackson used to parse API Responses -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-annotations</artifactId>
       <version>${jackson.version}</version>
     </dependency>
 
-    <!-- Jackson databinding used to parse Cognito responses -->
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
