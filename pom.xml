@@ -17,18 +17,26 @@
   <url>http://maven.apache.org</url>
 
   <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>11</maven.compiler.release>
 
+    <!-- Application dependency versions -->
     <javax.version>7.0</javax.version>
     <mysql.version>8.0.16</mysql.version>
+    <jstl.version>1.2</jstl.version>
     <log4j.version>2.17.1</log4j.version>
     <hibernate.version>6.4.3.Final</hibernate.version>
+    <java-jwt.version>3.4.1</java-jwt.version>
+    <jackson.version>2.9.7</jackson.version>
+    <json.version>20170516</json.version>
+    <commons-io.version>2.11.0</commons-io.version>
+    <jersey-version>2.29.1</jersey-version>
 
-    <junit4.version>4.12</junit4.version>
+    <!-- Test dependency versions -->
     <junit.jupiter.version>5.0.0</junit.jupiter.version>
-    <junit.vintage.version>4.12.0</junit.vintage.version>
     <junit.platform.version>1.0.0</junit.platform.version>
 
+    <!-- Maven plugin versions -->
     <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
     <maven.surefire.plugin.version>2.19</maven.surefire.plugin.version>
   </properties>
@@ -40,6 +48,7 @@
       <groupId>javax</groupId>
       <artifactId>javaee-web-api</artifactId>
       <version>${javax.version}</version>
+      <scope>provided</scope>
     </dependency>
 
     <!-- MySQL -->
@@ -53,7 +62,7 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>jstl</artifactId>
-      <version>1.2</version>
+      <version>${jstl.version}</version>
     </dependency>
 
     <!-- Log4j -->
@@ -69,35 +78,18 @@
       <version>${log4j.version}</version>
     </dependency>
 
-    <!-- JUnit 4 -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit4.version}</version>
-      <scope>test</scope>
-    </dependency>
-
-    <!-- JUnit Platform -->
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-runner</artifactId>
-      <version>${junit.platform.version}</version>
-      <scope>test</scope>
-    </dependency>
-
     <!-- JUnit 5 -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
+      <artifactId>junit-jupiter-api</artifactId>
       <version>${junit.jupiter.version}</version>
       <scope>test</scope>
     </dependency>
 
-    <!-- Allows JUnit 4 tests to run on the JUnit Platform -->
     <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
-      <version>${junit.vintage.version}</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>${junit.jupiter.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -119,19 +111,46 @@
     <dependency>
       <groupId>com.auth0</groupId>
       <artifactId>java-jwt</artifactId>
-      <version>3.4.1</version>
+      <version>${java-jwt.version}</version>
+    </dependency>
+
+    <!-- Jackson annotations used by the Cognito token classes -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+
+    <!-- Jackson databinding used to parse Cognito responses -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20170516</version>
+      <version>${json.version}</version>
     </dependency>
 
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.11.0</version>
+      <version>${commons-io.version}</version>
+    </dependency>
+
+    <!-- Jersey Library for API Calls-->
+    <dependency>
+      <groupId>org.glassfish.jersey.core</groupId>
+      <artifactId>jersey-client</artifactId>
+      <version>${jersey-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.glassfish.jersey.inject</groupId>
+      <artifactId>jersey-hk2</artifactId>
+      <version>${jersey-version}</version>
     </dependency>
 
   </dependencies>
