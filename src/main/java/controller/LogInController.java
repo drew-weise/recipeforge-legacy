@@ -13,7 +13,7 @@ import java.util.Properties;
 /**
  * Begins the authentication process using AWS Cognito
  */
-public class LogIn extends HttpServlet {
+public class LogInController extends HttpServlet {
 
     @Override
     public void init() throws ServletException {

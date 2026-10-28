@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
  * Inspired by: https://stackoverflow.com/questions/52144721/how-to-get-access-token-using-client-credentials-using-java-code
  */
 
-public class Auth extends HttpServlet {
+public class AuthController extends HttpServlet {
     Properties cognito;
     Keys jwks;
 
@@ -78,7 +78,8 @@ public class Auth extends HttpServlet {
             try {
                 TokenResponse tokenResponse = getToken(tokenRequest);
                 email = validate(tokenResponse);
-                req.setAttribute("email", email);
+                req.getSession().setAttribute("email", email);
+                resp.sendRedirect(req.getContextPath() + "/user");
             } catch (IOException e) {
                 logger.error("Error getting or validating the token: " + e.getMessage(), e);
                 //TODO forward to an error page
@@ -87,8 +88,6 @@ public class Auth extends HttpServlet {
                 //TODO forward to an error page
             }
         }
-        RequestDispatcher dispatcher = req.getRequestDispatcher("user.jsp");
-        dispatcher.forward(req, resp);
     }
 
     /**
