@@ -1,54 +1,73 @@
-<%@ include file="taglib.jsp" %>
-<c:set var="title" value="RecipeForge Recipes" />
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<c:set var="title" value="My RecipeForge Account" />
+
 <jsp:include page="head.jsp" />
 
-<script type="text/javascript" class="init">
-    $(document).ready(function () {
-        $('#recipeTable').DataTable();
-    });
-</script>
+<body class="bg-light">
 
-<body>
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand"
+           href="${pageContext.request.contextPath}/">
+            RecipeForge
+        </a>
 
-<h1>RecipeForge Recipes</h1>
+        <a class="btn btn-outline-light"
+           href="${pageContext.request.contextPath}/logOut">
+            Log out
+        </a>
+    </div>
+</nav>
 
-<div class="container-fluid">
-    <table id="recipeTable" class="display" cellspacing="0" width="100%">
-        <thead>
-        <tr>
-            <th>User</th>
-            <th>Recipe</th>
-            <th>Servings</th>
-            <th>Description</th>
-            <th>Ingredients</th>
-        </tr>
-        </thead>
+<main class="container py-5">
 
-        <tbody>
-        <c:forEach var="user" items="${users}">
-            <c:forEach var="recipe" items="${user.recipes}">
-                <tr>
-                    <td>${user.displayName}</td>
-                    <td>${recipe.recipeTitle}</td>
-                    <td>${recipe.recipeServings}</td>
-                    <td>${recipe.recipeDescription}</td>
+    <div class="mb-4">
+        <h1>My Account</h1>
 
-                    <td>
-                        <c:forEach
-                                var="recipeIngredient"
-                                items="${recipe.recipeIngredients}">
+        <p class="text-muted mb-1">Welcome, ${user.displayName}</p>
 
-                            ${recipeIngredient.amount}
-                            ${recipeIngredient.ingredient.ingredientName}<br>
+        <p class="text-muted">${user.email}</p>
+    </div>
 
-                        </c:forEach>
-                    </td>
-                </tr>
-            </c:forEach>
-        </c:forEach>
-        </tbody>
-    </table>
-</div>
+    <hr>
+
+    <h2 class="h4 mt-4 mb-3">My Recipes</h2>
+
+    <c:choose>
+
+        <c:when test="${empty user.recipes}">
+            <div class="alert alert-info">
+                You have not created any recipes yet.
+            </div>
+        </c:when>
+
+        <c:otherwise>
+            <div class="row g-4">
+
+                <c:forEach var="recipe" items="${user.recipes}">
+                    <div class="col-md-6 col-lg-4">
+
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+
+                                <h3 class="h5 card-title">${recipe.recipeTitle}</h3>
+
+                                <p class="card-text text-muted">${recipe.recipeDescription}</p>
+
+                                <p class="mb-0"><strong>Servings:</strong>${recipe.recipeServings}</p>
+
+                            </div>
+                        </div>
+                    </div>
+                </c:forEach>
+
+            </div>
+        </c:otherwise>
+
+    </c:choose>
+
+</main>
 
 </body>
 </html>

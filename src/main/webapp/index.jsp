@@ -1,4 +1,4 @@
-<%@ include file="taglib.jsp" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <c:set var="title" value="RecipeForge" />
 
@@ -30,14 +30,7 @@
             </c:when>
 
             <c:otherwise>
-                <h2 class="h4">
-                    Welcome, ${email}
-                </h2>
-
-                <a class="btn btn-dark mt-3"
-                   href="${pageContext.request.contextPath}/recipes">
-                    View recipes
-                </a>
+                <c:redirect url="/user" />
             </c:otherwise>
         </c:choose>
 

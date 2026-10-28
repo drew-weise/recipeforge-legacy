@@ -87,7 +87,7 @@ public class Auth extends HttpServlet {
                 //TODO forward to an error page
             }
         }
-        RequestDispatcher dispatcher = req.getRequestDispatcher("index.jsp");
+        RequestDispatcher dispatcher = req.getRequestDispatcher("user.jsp");
         dispatcher.forward(req, resp);
     }
 
