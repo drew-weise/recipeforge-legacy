@@ -4,19 +4,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openrouter.ChatCompletionResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import util.PropertiesLoader;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Properties;
 
-public class OpenRouterDAO {
+
+public class OpenRouterDAO implements PropertiesLoader {
 
     private static final Logger logger = LogManager.getLogger(OpenRouterDAO.class);
 
     public String sendPrompt(String userRequest) throws Exception {
-        String apiKey = System.getenv("OPENROUTER_API_KEY");
+
+        Properties properties = loadProperties("/openrouter.properties");
+
+        String apiKey = properties.getProperty("OPENROUTER_API_KEY");
 
         if (apiKey == null || apiKey.length() == 0) {
             logger.error("OPENROUTER_API_KEY is not configured");

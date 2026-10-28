@@ -42,7 +42,11 @@ build/
 ### Mac OS ###
 .DS_Store
 /global-bundle.pem
-/src/main/resources/cognito.properties
 **/origin.key
 /origin.pem
 /.ebextensions/ssl-certs.config
+
+### Properties ###
+/src/main/resources/openrouter.properties
+/src/main/resources/database.properties
+/src/main/resources/cognito.properties

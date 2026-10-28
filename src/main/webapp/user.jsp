@@ -1,6 +1,6 @@
 <%@ include file="taglib.jsp" %>
 <c:set var="title" value="RecipeForge Recipes" />
-<%@ include file="head.jsp" %>
+<jsp:include page="head.jsp" />
 
 <script type="text/javascript" class="init">
     $(document).ready(function () {
