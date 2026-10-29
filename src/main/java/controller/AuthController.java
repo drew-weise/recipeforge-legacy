@@ -11,7 +11,6 @@ import org.apache.commons.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -40,15 +39,9 @@ import java.util.stream.Collectors;
 
 
 @WebServlet(urlPatterns = {"/auth"})
-
-// TODO if something goes wrong it this process, route to an error page. Currently, errors are only caught and logged.
-/**
- * Inspired by: https://stackoverflow.com/questions/52144721/how-to-get-access-token-using-client-credentials-using-java-code
- */
-
 public class AuthController extends HttpServlet {
     Properties cognito;
-    Keys jwks;
+    Jwks jwks;
 
     private final Logger logger = LogManager.getLogger(this.getClass());
 
@@ -56,20 +49,22 @@ public class AuthController extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         cognito = (Properties) getServletContext().getAttribute("cognitoProperties");
-        loadKey();
+        loadJwks();
     }
 
     /**
-     * Gets the auth code from the request and exchanges it for a token containing user info.
-     * @param req servlet request
-     * @param resp servlet response
-     * @throws ServletException
-     * @throws IOException
+     * Gets the auth code from the request and exchanges it for a token
+     * containing user information.
+     *
+     * @param req  the servlet request
+     * @param resp the servlet response
+     * @throws ServletException if the servlet encounters an error
+     * @throws IOException      if an input or output error occurs
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String authCode = req.getParameter("code");
-        String email = null;
+        String email;
 
         if (authCode == null) {
             req.setAttribute("errorMessage", "The login response was missing an authorization code.");
@@ -94,31 +89,33 @@ public class AuthController extends HttpServlet {
     }
 
     /**
-     * Sends the request for a token to Cognito and maps the response
-     * @param tokenRequest the request to the oauth2/token url in cognito
-     * @return response from the oauth2/token endpoint which should include id token, access token and refresh token
-     * @throws IOException
-     * @throws InterruptedException
+     * Sends the request for a token to Cognito and maps the response.
+     *
+     * @param tokenRequest the request sent to Cognito's oauth2/token endpoint
+     * @return the response from the oauth2/token endpoint, including the
+     *         ID token, access token, and refresh token
+     * @throws IOException if the request cannot be sent
+     * @throws InterruptedException if the request is interrupted
      */
     private TokenResponse getToken(HttpRequest tokenRequest) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
-        HttpResponse<?> response = null;
+        HttpResponse<?> response;
 
         response = client.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
         logger.debug("Response headers: " + response.headers().toString());
 
         ObjectMapper mapper = new ObjectMapper();
-        TokenResponse tokenResponse = mapper.readValue(response.body().toString(), TokenResponse.class);
 
-        return tokenResponse;
+        return mapper.readValue(response.body().toString(), TokenResponse.class);
     }
 
     /**
-     * Get values out of the header to verify the token is legit. If it is legit, get the claims from it, such
-     * as username.
-     * @param tokenResponse
-     * @return
-     * @throws IOException
+     * Extracts values from the token header, verifies that the token is valid,
+     * and retrieves claims such as the username.
+     *
+     * @param tokenResponse the response containing the ID token
+     * @return the username extracted from the validated token
+     * @throws IOException if the token cannot be parsed
      */
     private String validate(TokenResponse tokenResponse) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -199,10 +196,10 @@ public class AuthController extends HttpServlet {
      * Gets the JSON Web Key Set (JWKS) for the user pool from cognito and loads it
      * into objects for easier use.
      *
-     * @see Keys
+     * @see Jwks
      * @see KeysItem
      */
-    private void loadKey() {
+    private void loadJwks() {
 
         ObjectMapper mapper = new ObjectMapper();
 
@@ -212,8 +209,8 @@ public class AuthController extends HttpServlet {
 
             File jwksFile = new File("jwks.json");
             FileUtils.copyURLToFile(jwksURL, jwksFile);
-            jwks = mapper.readValue(jwksFile, Keys.class);
-            logger.debug("Keys are loaded. Here's e: " + jwks.getKeys().get(0).getE());
+            jwks = mapper.readValue(jwksFile, Jwks.class);
+            logger.debug("Keys are loaded");
         } catch (IOException ioException) {
             logger.error("Cannot load json..." + ioException.getMessage(), ioException);
         } catch (Exception e) {

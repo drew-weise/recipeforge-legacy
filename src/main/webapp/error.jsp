@@ -3,7 +3,7 @@
 <c:set var="title" value="Error" />
 
 <jsp:include page="head.jsp" />
-
+<html>
 <body class="bg-light">
 
 <div class="container min-vh-100 d-flex align-items-center justify-content-center">
@@ -16,8 +16,8 @@
 
         <p class="text-muted">
             <c:choose>
-                <c:when test="${not empty errorMessage}">
-                    ${errorMessage}
+                <c:when test="${not empty requestScope.errorMessage}">
+                    <c:out value="${requestScope.errorMessage}" />
                 </c:when>
 
                 <c:otherwise>

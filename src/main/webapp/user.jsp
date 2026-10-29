@@ -4,6 +4,7 @@
 
 <jsp:include page="head.jsp" />
 
+<html>
 <body class="bg-light">
 
 <nav class="navbar navbar-dark bg-dark">

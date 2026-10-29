@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class Keys{
+public class Jwks {
 
 	@JsonProperty("keys")
 	private List<KeysItem> keys;
