@@ -31,27 +31,20 @@ public class UserController extends HttpServlet {
         User user;
 
         if (matchingUsers.isEmpty()) {
-            /*
-             * First login:
-             * create the local RecipeForge user.
-             */
+
+            // First login: create the local RecipeForge user.
             user = new User(email, email);
 
             userDao.insert(user);
         } else {
-            /*
-             * Returning user:
-             * use the existing database record.
-             */
+
+            // Returning user: use the existing database record.
             user = matchingUsers.get(0);
         }
 
-        /*
-         * Make the database user available to user.jsp.
-         */
+        // Make the database user available to user.jsp.
         request.setAttribute("user", user);
 
-        request.getRequestDispatcher("/user.jsp")
-                .forward(request, response);
+        request.getRequestDispatcher("/user.jsp").forward(request, response);
     }
 }

@@ -1,7 +1,5 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-
 <c:set var="title" value="My RecipeForge Account" />
-
 <jsp:include page="head.jsp" />
 
 <html>
@@ -20,7 +18,7 @@
 
     <div class="mb-4">
         <h1>My Account</h1>
-        <p class="text-muted mb-1">Welcome, ${user.displayName}</p>
+        <p class="text-muted mb-1">Welcome, ${requestScope.user.email}</p>
     </div>
 
     <hr>
@@ -29,7 +27,7 @@
 
     <c:choose>
 
-        <c:when test="${empty user.recipes}">
+        <c:when test="${empty requestScope.user.recipes}">
             <div class="alert alert-info">
                 You have not created any recipes yet.
             </div>
@@ -38,18 +36,23 @@
         <c:otherwise>
             <div class="row g-4">
 
-                <c:forEach var="recipe" items="${user.recipes}">
-                    <div class="col-md-6 col-lg-4">
+                <c:forEach var="recipe" items="${requestScope.user.recipes}">
 
+                    <div class="col-md-6 col-lg-4">
                         <div class="card h-100 shadow-sm">
                             <div class="card-body">
+                                <h3 class="h5 card-title">
+                                        ${recipe.recipeTitle}
+                                </h3>
 
-                                <h3 class="h5 card-title">${recipe.recipeTitle}</h3>
+                                <p class="card-text text-muted">
+                                        ${recipe.recipeDescription}
+                                </p>
 
-                                <p class="card-text text-muted">${recipe.recipeDescription}</p>
-
-                                <p class="mb-0"><strong>Servings:</strong>${recipe.recipeServings}</p>
-
+                                <p class="mb-0">
+                                    <strong>Servings:</strong>
+                                        ${recipe.recipeServings}
+                                </p>
                             </div>
                         </div>
                     </div>

@@ -4,9 +4,11 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class OpenRouterDAOTest {
-
+    private static final Logger logger = LogManager.getLogger(OpenRouterDAOTest.class);
     private final OpenRouterDAO openRouterDAO = new OpenRouterDAO();
 
 
@@ -18,6 +20,6 @@ class OpenRouterDAOTest {
         assertNotNull(response);
         assertFalse(response.isBlank());
 
-        System.out.println(response);
+        logger.debug("OpenRouter response: {}", response);
     }
 }
