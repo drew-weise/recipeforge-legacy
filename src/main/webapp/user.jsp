@@ -24,6 +24,10 @@
     <hr>
 
     <h2 class="h4 mt-4 mb-3">My Recipes</h2>
+    <a href="${pageContext.request.contextPath}/recipe/new"
+       class="btn btn-primary mb-4">
+        Create New Recipe
+    </a>
 
     <c:choose>
 
