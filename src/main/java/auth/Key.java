@@ -2,7 +2,7 @@ package auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class KeysItem{
+public class Key {
 
 	@JsonProperty("kty")
 	private String kty;

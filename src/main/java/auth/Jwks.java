@@ -7,9 +7,9 @@ import java.util.List;
 public class Jwks {
 
 	@JsonProperty("keys")
-	private List<KeysItem> keys;
+	private List<Key> keys;
 
-	public List<KeysItem> getKeys(){
+	public List<Key> getKeys(){
 		return keys;
 	}
 }

@@ -121,15 +121,20 @@ public class AuthController extends HttpServlet {
         ObjectMapper mapper = new ObjectMapper();
         CognitoTokenHeader tokenHeader = mapper.readValue(CognitoJWTParser.getHeader(tokenResponse.getIdToken()).toString(), CognitoTokenHeader.class);
 
-        // Header should have kid and alg- https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-using-the-id-token.html
         String keyId = tokenHeader.getKid();
         String alg = tokenHeader.getAlg();
 
-        // todo pick proper key from the two - it just so happens that the first one works for my case
-        // Use Key's N and E
         BigInteger modulus = new BigInteger(1, org.apache.commons.codec.binary.Base64.decodeBase64(jwks.getKeys().get(0).getN()));
         BigInteger exponent = new BigInteger(1, org.apache.commons.codec.binary.Base64.decodeBase64(jwks.getKeys().get(0).getE()));
 
+        Key matchingKey = null;
+
+        for (Key key : jwks.getKeys()) {
+            if (tokenKeyId.equals(key.getKid())) {
+                matchingKey = key;
+                break;
+            }
+        }
 
         // Create a public key
         PublicKey publicKey = null;
@@ -197,10 +202,9 @@ public class AuthController extends HttpServlet {
      * into objects for easier use.
      *
      * @see Jwks
-     * @see KeysItem
+     * @see Key
      */
     private void loadJwks() {
-
         ObjectMapper mapper = new ObjectMapper();
 
         try {
@@ -209,12 +213,13 @@ public class AuthController extends HttpServlet {
 
             File jwksFile = new File("jwks.json");
             FileUtils.copyURLToFile(jwksURL, jwksFile);
+
             jwks = mapper.readValue(jwksFile, Jwks.class);
-            logger.debug("Keys are loaded");
-        } catch (IOException ioException) {
-            logger.error("Cannot load json..." + ioException.getMessage(), ioException);
-        } catch (Exception e) {
-            logger.error("Error loading json" + e.getMessage(), e);
+
+            logger.debug("JWKS is loaded");
+
+        } catch (IOException e) {
+            logger.error("Cannot load JWKS JSON: " + e.getMessage(), e);
         }
     }
 }
