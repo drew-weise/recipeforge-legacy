@@ -15,7 +15,6 @@ import javax.servlet.annotation.WebServlet;
 )
 
 public class CognitoPropertiesLoader extends HttpServlet implements PropertiesLoader {
-    Properties properties;
     private final Logger logger = LogManager.getLogger(this.getClass());
 
     @Override
@@ -29,7 +28,7 @@ public class CognitoPropertiesLoader extends HttpServlet implements PropertiesLo
             Properties properties = loadProperties("/cognito.properties");
             getServletContext().setAttribute("cognitoProperties", properties);
         } catch (Exception e) {
-            logger.error("Error loading properties" + e.getMessage(), e);
+            logger.error("Error loading properties: {}", e.getMessage(), e);
         }
     }
 }

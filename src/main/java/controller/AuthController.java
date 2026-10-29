@@ -123,13 +123,13 @@ public class AuthController extends HttpServlet {
 
         String keyId = tokenHeader.getKid();
         String alg = tokenHeader.getAlg();
+        Jwk matchingKey;
 
         BigInteger modulus = new BigInteger(1, org.apache.commons.codec.binary.Base64.decodeBase64(jwks.getKeys().get(0).getN()));
         BigInteger exponent = new BigInteger(1, org.apache.commons.codec.binary.Base64.decodeBase64(jwks.getKeys().get(0).getE()));
 
-        Key matchingKey = null;
 
-        for (Key key : jwks.getKeys()) {
+        for (Jwk key : jwks.getKeys()) {
             if (tokenKeyId.equals(key.getKid())) {
                 matchingKey = key;
                 break;
@@ -202,7 +202,7 @@ public class AuthController extends HttpServlet {
      * into objects for easier use.
      *
      * @see Jwks
-     * @see Key
+     * @see Jwk
      */
     private void loadJwks() {
         ObjectMapper mapper = new ObjectMapper();
