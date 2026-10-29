@@ -7,7 +7,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import auth.*;
-import org.apache.commons.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,12 +28,14 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
-
+/**
+ * Handles the Cognito login callback, exchanges the authorization code
+ * for tokens, validates the ID token, and stores the user's email
+ * in the session.
+ */
 @WebServlet(urlPatterns = {"/auth"})
 public class AuthController extends HttpServlet {
     Properties cognito;
@@ -74,11 +75,11 @@ public class AuthController extends HttpServlet {
                 req.getSession().setAttribute("email", email);
                 resp.sendRedirect(req.getContextPath() + "/user");
             } catch (IOException e) {
-                logger.error("Error getting or validating the token: " + e.getMessage(), e);
+                logger.error("Error getting or validating the token", e);
                 req.setAttribute("errorMessage", "Unable to complete login.");
                 req.getRequestDispatcher("/error.jsp").forward(req, resp);
             } catch (InterruptedException e) {
-                logger.error("Error getting token from Cognito oauth url " + e.getMessage(), e);
+                logger.error("Error getting token from Cognito OAuth URL", e);
                 req.setAttribute("errorMessage", "Unable to complete login.");
                 req.getRequestDispatcher("/error.jsp").forward(req, resp);
             }
@@ -95,66 +96,63 @@ public class AuthController extends HttpServlet {
      * @throws InterruptedException if the request is interrupted
      */
     private TokenResponse getCognitoToken(HttpRequest tokenRequest) throws IOException, InterruptedException {
-        HttpClient client = HttpClient.newHttpClient();
-        HttpResponse<?> response;
-
-        response = client.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
-        logger.debug("Response headers: " + response.headers().toString());
 
         ObjectMapper mapper = new ObjectMapper();
+        HttpClient client = HttpClient.newHttpClient();
 
-        return mapper.readValue(response.body().toString(), TokenResponse.class);
+        HttpResponse<String> response = client.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
+
+        logger.debug("Response headers: {}", response.headers());
+
+        return mapper.readValue(response.body(), TokenResponse.class);
     }
 
     /**
-     * Extracts values from the token header, verifies that the token is valid,
-     * and retrieves claims such as the username.
+     * Reads the Cognito ID token, finds the correct public key, verifies the
+     * token's signature and issuer, and returns the email claim.
      *
-     * @param tokenResponse the response containing the ID token
-     * @return the username extracted from the validated token
-     * @throws IOException if the token cannot be parsed
+     * @param tokenResponse the response containing the Cognito ID token
+     * @return the email extracted from the validated ID token
+     * @throws IOException if the token cannot be parsed or the matching
+     *                     public key cannot be built
      */
     private String validateCognitoToken(TokenResponse tokenResponse) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         CognitoTokenHeader tokenHeader = mapper.readValue(CognitoJWTParser.getHeader(tokenResponse.getIdToken()).toString(), CognitoTokenHeader.class);
         
-        // Get the Cognito TokenKeyId
         String tokenKeyId = tokenHeader.getKid();
-        // Match the Cognito TokenKeyId to the correct Jwk KeyId
         Jwk matchingKey = findMatchingJwk(tokenKeyId);
-        // Build the public key with the matching Jwk
         RSAPublicKey publicKey = buildPublicKey(matchingKey);
 
-        
-        // Check to see if the algorithm in the public key matches what is expected
+
         if (!"RS256".equals(tokenHeader.getAlg())) {
-            logger.error("Invalid Alg: " + tokenHeader.getAlg() + " - Only RS256 tokens are accepted");
+            logger.error("Invalid algorithm: {}", tokenHeader.getAlg());
             throw new IOException("Only RS256 tokens are accepted");
         }
 
-        // get an algorithm instance
         Algorithm algorithm = Algorithm.RSA256(publicKey, null);
 
-        // Verify ISS field of the token to make sure it's from the Cognito source
         String iss = String.format("https://cognito-idp.%s.amazonaws.com/%s", cognito.getProperty("region"), cognito.getProperty("poolId"));
 
         JWTVerifier verifier = JWT.require(algorithm)
                 .withIssuer(iss)
-                .withClaim("token_use", "id") // make sure you're verifying id token
+                .withClaim("token_use", "id")
                 .build();
 
-        // Verify the token
         DecodedJWT jwt = verifier.verify(tokenResponse.getIdToken());
-        String email = jwt.getClaim("email").asString();
 
-
-        logger.debug("here's the username: " + email);
-
-        logger.debug("here are all the available claims: " + jwt.getClaims());
-
-        return email;
+        return jwt.getClaim("email").asString();
     }
 
+    /**
+     * Finds the public JSON Web Key whose key ID matches the key ID
+     * contained in the Cognito token header.
+     *
+     * @param tokenKeyId the key ID from the Cognito token header
+     * @return the matching JSON Web Key
+     * @throws IOException if the JWKS was not loaded, the token has no key ID,
+     *                     or no matching key is found
+     */
     private Jwk findMatchingJwk(String tokenKeyId) throws IOException {
         if (jwks == null || jwks.getKeys() == null) {
             throw new IOException("JWKS was not loaded");
@@ -175,6 +173,15 @@ public class AuthController extends HttpServlet {
         );
     }
 
+    /**
+     * Builds an RSA public key from the modulus and exponent contained
+     * in a Cognito JSON Web Key.
+     *
+     * @param matchingKey the JSON Web Key containing the RSA key values
+     * @return the RSA public key used to verify the token signature
+     * @throws IOException if the key is null, missing its modulus or exponent,
+     *                     or cannot be converted into an RSA public key
+     */
     private RSAPublicKey buildPublicKey(Jwk matchingKey) throws IOException {
         if (matchingKey == null) {
             throw new IOException("Cannot build public key from null JWK");
@@ -205,7 +212,7 @@ public class AuthController extends HttpServlet {
     private HttpRequest buildAuthRequest(String authCode) {
         String clientCredentials = cognito.getProperty("client.id") + ":" + cognito.getProperty("client.secret");
 
-        HashMap<String, String> parameters = new HashMap<>();
+        Map<String, String> parameters = new LinkedHashMap<>();
         parameters.put("grant_type", "authorization_code");
         parameters.put("code", authCode);
         parameters.put("redirect_uri", cognito.getProperty("redirectURL"));
@@ -216,20 +223,21 @@ public class AuthController extends HttpServlet {
                 .map(key -> key + "=" + URLEncoder.encode(parameters.get(key), StandardCharsets.UTF_8))
                 .collect(Collectors.joining("&"));
 
-        String encoding = Base64.getEncoder().encodeToString(clientCredentials.getBytes());
+        String encoding = Base64.getEncoder().encodeToString(clientCredentials.getBytes(StandardCharsets.UTF_8));
 
         return HttpRequest.newBuilder()
                 .uri(URI.create(cognito.getProperty("oauthURL")))
-                .headers("Content-Type", "application/x-www-form-urlencoded", "Authorization", "Basic " + encoding)
-                .POST(HttpRequest.BodyPublishers.ofString(form)).build();
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .header("Authorization", "Basic " + encoding)
+                .POST(HttpRequest.BodyPublishers.ofString(form))
+                .build();
     }
 
     /**
-     * Gets the JSON Web Key Set (JWKS) for the user pool from cognito and loads it
-     * into objects for easier use.
+     * Downloads the JSON Web Key Set from the Cognito user pool and converts
+     * the response into Jwks and Jwk objects for token validation.
      *
-     * @see Jwks
-     * @see Jwk
+     * @throws ServletException if the JWKS cannot be downloaded, parsed, or loaded successfully
      */
     private void loadJwks() throws ServletException {
         try {
