@@ -16,11 +16,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -28,7 +26,6 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
@@ -72,8 +69,8 @@ public class AuthController extends HttpServlet {
         } else {
             HttpRequest tokenRequest = buildAuthRequest(authCode);
             try {
-                TokenResponse tokenResponse = getToken(tokenRequest);
-                email = validate(tokenResponse);
+                TokenResponse tokenResponse = getCognitoToken(tokenRequest);
+                email = validateCognitoToken(tokenResponse);
                 req.getSession().setAttribute("email", email);
                 resp.sendRedirect(req.getContextPath() + "/user");
             } catch (IOException e) {
@@ -97,7 +94,7 @@ public class AuthController extends HttpServlet {
      * @throws IOException if the request cannot be sent
      * @throws InterruptedException if the request is interrupted
      */
-    private TokenResponse getToken(HttpRequest tokenRequest) throws IOException, InterruptedException {
+    private TokenResponse getCognitoToken(HttpRequest tokenRequest) throws IOException, InterruptedException {
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse<?> response;
 
@@ -117,37 +114,26 @@ public class AuthController extends HttpServlet {
      * @return the username extracted from the validated token
      * @throws IOException if the token cannot be parsed
      */
-    private String validate(TokenResponse tokenResponse) throws IOException {
+    private String validateCognitoToken(TokenResponse tokenResponse) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         CognitoTokenHeader tokenHeader = mapper.readValue(CognitoJWTParser.getHeader(tokenResponse.getIdToken()).toString(), CognitoTokenHeader.class);
+        
+        // Get the Cognito TokenKeyId
+        String tokenKeyId = tokenHeader.getKid();
+        // Match the Cognito TokenKeyId to the correct Jwk KeyId
+        Jwk matchingKey = findMatchingJwk(tokenKeyId);
+        // Build the public key with the matching Jwk
+        RSAPublicKey publicKey = buildPublicKey(matchingKey);
 
-        String keyId = tokenHeader.getKid();
-        String alg = tokenHeader.getAlg();
-        Jwk matchingKey;
-
-        BigInteger modulus = new BigInteger(1, org.apache.commons.codec.binary.Base64.decodeBase64(jwks.getKeys().get(0).getN()));
-        BigInteger exponent = new BigInteger(1, org.apache.commons.codec.binary.Base64.decodeBase64(jwks.getKeys().get(0).getE()));
-
-
-        for (Jwk key : jwks.getKeys()) {
-            if (tokenKeyId.equals(key.getKid())) {
-                matchingKey = key;
-                break;
-            }
-        }
-
-        // Create a public key
-        PublicKey publicKey = null;
-        try {
-            publicKey = KeyFactory.getInstance("RSA").generatePublic(new RSAPublicKeySpec(modulus, exponent));
-        } catch (InvalidKeySpecException e) {
-            logger.error("Invalid Key Error " + e.getMessage(), e);
-        } catch (NoSuchAlgorithmException e) {
-            logger.error("Algorithm Error " + e.getMessage(), e);
+        
+        // Check to see if the algorithm in the public key matches what is expected
+        if (!"RS256".equals(tokenHeader.getAlg())) {
+            logger.error("Invalid Alg: " + tokenHeader.getAlg() + " - Only RS256 tokens are accepted");
+            throw new IOException("Only RS256 tokens are accepted");
         }
 
         // get an algorithm instance
-        Algorithm algorithm = Algorithm.RSA256((RSAPublicKey) publicKey, null);
+        Algorithm algorithm = Algorithm.RSA256(publicKey, null);
 
         // Verify ISS field of the token to make sure it's from the Cognito source
         String iss = String.format("https://cognito-idp.%s.amazonaws.com/%s", cognito.getProperty("region"), cognito.getProperty("poolId"));
@@ -167,6 +153,48 @@ public class AuthController extends HttpServlet {
         logger.debug("here are all the available claims: " + jwt.getClaims());
 
         return email;
+    }
+
+    private Jwk findMatchingJwk(String tokenKeyId) throws IOException {
+        if (jwks == null || jwks.getKeys() == null) {
+            throw new IOException("JWKS was not loaded");
+        }
+
+        if (tokenKeyId == null) {
+            throw new IOException("Token did not contain a kid value");
+        }
+
+        for (Jwk jwk : jwks.getKeys()) {
+            if (tokenKeyId.equals(jwk.getKid())) {
+                return jwk;
+            }
+        }
+
+        throw new IOException(
+                "No JWKS key matched token kid: " + tokenKeyId
+        );
+    }
+
+    private RSAPublicKey buildPublicKey(Jwk matchingKey) throws IOException {
+        if (matchingKey == null) {
+            throw new IOException("Cannot build public key from null JWK");
+        }
+
+        if (matchingKey.getN() == null || matchingKey.getE() == null) {
+            throw new IOException("JWK is missing modulus or exponent");
+        }
+
+        BigInteger modulus = new BigInteger(1, org.apache.commons.codec.binary.Base64.decodeBase64(matchingKey.getN()));
+        BigInteger exponent = new BigInteger(1, org.apache.commons.codec.binary.Base64.decodeBase64(matchingKey.getE()));
+
+        try {
+            return (RSAPublicKey) KeyFactory
+                    .getInstance("RSA")
+                    .generatePublic(new RSAPublicKeySpec(modulus, exponent));
+
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            throw new IOException("Could not build RSA public key from JWK", e);
+        }
     }
 
     /** Create the auth url and use it to build the request.
@@ -190,11 +218,10 @@ public class AuthController extends HttpServlet {
 
         String encoding = Base64.getEncoder().encodeToString(clientCredentials.getBytes());
 
-        HttpRequest tokenRequest = HttpRequest.newBuilder()
+        return HttpRequest.newBuilder()
                 .uri(URI.create(cognito.getProperty("oauthURL")))
                 .headers("Content-Type", "application/x-www-form-urlencoded", "Authorization", "Basic " + encoding)
                 .POST(HttpRequest.BodyPublishers.ofString(form)).build();
-        return tokenRequest;
     }
 
     /**
@@ -204,22 +231,40 @@ public class AuthController extends HttpServlet {
      * @see Jwks
      * @see Jwk
      */
-    private void loadJwks() {
-        ObjectMapper mapper = new ObjectMapper();
-
+    private void loadJwks() throws ServletException {
         try {
-            URL jwksURL = new URL(String.format("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json",
-                    cognito.getProperty("region"), cognito.getProperty("poolId")));
+            ObjectMapper mapper = new ObjectMapper();
 
-            File jwksFile = new File("jwks.json");
-            FileUtils.copyURLToFile(jwksURL, jwksFile);
+            String jwksUrl = String.format(
+                    "https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json",
+                    cognito.getProperty("region"),
+                    cognito.getProperty("poolId")
+            );
 
-            jwks = mapper.readValue(jwksFile, Jwks.class);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(jwksUrl))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newHttpClient()
+                            .send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new IOException("JWKS request failed with HTTP status " + response.statusCode());
+            }
+
+            jwks = mapper.readValue(response.body(), Jwks.class);
 
             logger.debug("JWKS is loaded");
 
         } catch (IOException e) {
-            logger.error("Cannot load JWKS JSON: " + e.getMessage(), e);
+            logger.error("Unable to load Cognito JWKS", e);
+            throw new ServletException("Unable to load Cognito JWKS", e);
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("Loading Cognito JWKS was interrupted", e);
+            throw new ServletException("Loading Cognito JWKS was interrupted", e);
         }
     }
 }
