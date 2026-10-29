@@ -72,7 +72,8 @@ public class AuthController extends HttpServlet {
         String email = null;
 
         if (authCode == null) {
-            //TODO forward to an error page or back to the login
+            req.setAttribute("errorMessage", "The login response was missing an authorization code.");
+            req.getRequestDispatcher("/error.jsp").forward(req, resp);
         } else {
             HttpRequest tokenRequest = buildAuthRequest(authCode);
             try {
@@ -82,10 +83,12 @@ public class AuthController extends HttpServlet {
                 resp.sendRedirect(req.getContextPath() + "/user");
             } catch (IOException e) {
                 logger.error("Error getting or validating the token: " + e.getMessage(), e);
-                //TODO forward to an error page
+                req.setAttribute("errorMessage", "Unable to complete login.");
+                req.getRequestDispatcher("/error.jsp").forward(req, resp);
             } catch (InterruptedException e) {
                 logger.error("Error getting token from Cognito oauth url " + e.getMessage(), e);
-                //TODO forward to an error page
+                req.setAttribute("errorMessage", "Unable to complete login.");
+                req.getRequestDispatcher("/error.jsp").forward(req, resp);
             }
         }
     }
@@ -102,8 +105,6 @@ public class AuthController extends HttpServlet {
         HttpResponse<?> response = null;
 
         response = client.send(tokenRequest, HttpResponse.BodyHandlers.ofString());
-
-
         logger.debug("Response headers: " + response.headers().toString());
 
         ObjectMapper mapper = new ObjectMapper();
@@ -132,7 +133,7 @@ public class AuthController extends HttpServlet {
         BigInteger modulus = new BigInteger(1, org.apache.commons.codec.binary.Base64.decodeBase64(jwks.getKeys().get(0).getN()));
         BigInteger exponent = new BigInteger(1, org.apache.commons.codec.binary.Base64.decodeBase64(jwks.getKeys().get(0).getE()));
 
-        // TODO the following is "happy path", what if the exceptions are caught?
+
         // Create a public key
         PublicKey publicKey = null;
         try {

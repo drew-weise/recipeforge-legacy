@@ -8,13 +8,8 @@
 
 <nav class="navbar navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand"
-           href="${pageContext.request.contextPath}/">
-            RecipeForge
-        </a>
-
         <a class="btn btn-outline-light"
-           href="${pageContext.request.contextPath}/logOut">
+           href="${pageContext.request.contextPath}/logIn">
             Log out
         </a>
     </div>
@@ -24,10 +19,7 @@
 
     <div class="mb-4">
         <h1>My Account</h1>
-
         <p class="text-muted mb-1">Welcome, ${user.displayName}</p>
-
-        <p class="text-muted">${user.email}</p>
     </div>
 
     <hr>
