@@ -66,22 +66,23 @@ public class AuthController extends HttpServlet {
 
         if (authCode == null) {
             req.setAttribute("errorMessage", "The login response was missing an authorization code.");
-            req.getRequestDispatcher("/error.jsp").forward(req, resp);
+            resp.sendRedirect("http://localhost:5173/login?error=auth");
         } else {
             HttpRequest tokenRequest = buildAuthRequest(authCode);
             try {
                 TokenResponse tokenResponse = getCognitoToken(tokenRequest);
                 email = validateCognitoToken(tokenResponse);
+
                 req.getSession().setAttribute("email", email);
-                resp.sendRedirect(req.getContextPath() + "/user");
+
+                resp.sendRedirect("http://localhost:5173/");
+
             } catch (IOException e) {
                 logger.error("Error getting or validating the token", e);
-                req.setAttribute("errorMessage", "Unable to complete login.");
-                req.getRequestDispatcher("/error.jsp").forward(req, resp);
+                resp.sendRedirect("http://localhost:5173/login?error=auth");
             } catch (InterruptedException e) {
                 logger.error("Error getting token from Cognito OAuth URL", e);
-                req.setAttribute("errorMessage", "Unable to complete login.");
-                req.getRequestDispatcher("/error.jsp").forward(req, resp);
+                resp.sendRedirect("http://localhost:5173/login?error=auth");
             }
         }
     }

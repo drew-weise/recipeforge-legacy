@@ -35,7 +35,13 @@ public class LogInController extends HttpServlet {
             return;
         }
 
-        String url = properties.getProperty("loginURL") + "?response_type=code&client_id=" + properties.getProperty("client.id") + "&redirect_uri=" + properties.getProperty("redirectURL");
+        String url =
+                properties.getProperty("loginURL") +
+                "?response_type=code&client_id=" +
+                properties.getProperty("client.id") +
+                "&redirect_uri=" +
+                properties.getProperty("redirectURL");
+
         resp.sendRedirect(url);
     }
 }
