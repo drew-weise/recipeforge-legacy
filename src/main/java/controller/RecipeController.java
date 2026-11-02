@@ -62,10 +62,7 @@ public class RecipeController extends HttpServlet {
         try {
             recipeServings = Integer.parseInt(servingsParameter);
         } catch (NumberFormatException e) {
-            response.sendError(
-                    HttpServletResponse.SC_BAD_REQUEST,
-                    "Servings must be a number"
-            );
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Servings must be a number");
             return;
         }
 

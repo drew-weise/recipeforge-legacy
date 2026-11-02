@@ -20,8 +20,8 @@ function App() {
 
   return (
       <main>
-        <h1>Provisions</h1>
-        <p>Your personal food-planning space.</p>
+        <h1>Recipe Forge</h1>
+        <p>Your personal meal planning space</p>
 
           {recipeList.map(recipe => (
               <div key={recipe.recipeId}>

@@ -4,11 +4,8 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "ingredients")
-/**
- * Represents an Ingredient in RecipeForge.
- *
- * @author dweise
- */
+/** Represents an Ingredient in RecipeForge.
+ * @author dweise*/
 public class Ingredient {
 
     /** The ingredient's database ingredientId. */
