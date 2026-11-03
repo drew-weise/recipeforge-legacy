@@ -16,27 +16,19 @@ import java.util.Map;
 @WebServlet("/api/user/sync")
 public class UserApiController extends HttpServlet {
 
-    private final GenericDao<User> userDao =
-            new GenericDao<>(User.class);
+    private final GenericDao<User> userDao = new GenericDao<>(User.class);
 
-    private final ObjectMapper objectMapper =
-            new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    protected void doPost(
-            HttpServletRequest request,
-            HttpServletResponse response)
-            throws IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         addCorsHeaders(response);
 
         String email = getSessionEmail(request);
 
         if (email == null || email.isBlank()) {
-            response.sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    "User is not logged in"
-            );
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User is not logged in");
             return;
         }
 
@@ -45,11 +37,9 @@ public class UserApiController extends HttpServlet {
         sendUserResponse(response, user);
     }
 
-    private String getSessionEmail(
-            HttpServletRequest request) {
+    private String getSessionEmail(HttpServletRequest request) {
 
-        HttpSession session =
-                request.getSession(false);
+        HttpSession session = request.getSession(false);
 
         if (session == null) {
             return null;
@@ -60,8 +50,7 @@ public class UserApiController extends HttpServlet {
 
     private User findOrCreateUser(String email) {
 
-        List<User> matchingUsers =
-                userDao.getByPropertyEqual("email", email);
+        List<User> matchingUsers = userDao.getByPropertyEqual("email", email);
 
         if (!matchingUsers.isEmpty()) {
             return matchingUsers.get(0);
@@ -73,9 +62,7 @@ public class UserApiController extends HttpServlet {
         return newUser;
     }
 
-    private void sendUserResponse(
-            HttpServletResponse response,
-            User user)
+    private void sendUserResponse(HttpServletResponse response, User user)
             throws IOException {
 
         Map<String, Object> userResponse = Map.of(
@@ -87,10 +74,7 @@ public class UserApiController extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        objectMapper.writeValue(
-                response.getWriter(),
-                userResponse
-        );
+        objectMapper.writeValue(response.getWriter(), userResponse);
     }
 
     private void addCorsHeaders(HttpServletResponse response) {
