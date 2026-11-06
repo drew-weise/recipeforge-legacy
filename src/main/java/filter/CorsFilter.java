@@ -16,31 +16,13 @@ public class CorsFilter implements Filter {
             FilterChain chain
     ) throws IOException, ServletException {
 
-        HttpServletRequest httpRequest =
-                (HttpServletRequest) request;
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletResponse httpResponse = (HttpServletResponse) response;
 
-        HttpServletResponse httpResponse =
-                (HttpServletResponse) response;
-
-        httpResponse.setHeader(
-                "Access-Control-Allow-Origin",
-                "http://localhost:5173"
-        );
-
-        httpResponse.setHeader(
-                "Access-Control-Allow-Credentials",
-                "true"
-        );
-
-        httpResponse.setHeader(
-                "Access-Control-Allow-Methods",
-                "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-        );
-
-        httpResponse.setHeader(
-                "Access-Control-Allow-Headers",
-                "Content-Type"
-        );
+        httpResponse.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+        httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+        httpResponse.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
         if ("OPTIONS".equalsIgnoreCase(httpRequest.getMethod())) {
             httpResponse.setStatus(HttpServletResponse.SC_NO_CONTENT);

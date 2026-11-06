@@ -23,8 +23,6 @@ public class UserApiController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        addCorsHeaders(response);
-
         String email = getSessionEmail(request);
 
         if (email == null || email.isBlank()) {
@@ -75,18 +73,5 @@ public class UserApiController extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         objectMapper.writeValue(response.getWriter(), userResponse);
-    }
-
-    private void addCorsHeaders(HttpServletResponse response) {
-
-        response.setHeader(
-                "Access-Control-Allow-Origin",
-                "http://localhost:5173"
-        );
-
-        response.setHeader(
-                "Access-Control-Allow-Credentials",
-                "true"
-        );
     }
 }
