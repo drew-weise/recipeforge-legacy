@@ -18,8 +18,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private int userId;
-    /** The user's displayName. */
 
+    /** The user's displayName. */
     @Column(name = "display_name", nullable = false)
     private String displayName;
 

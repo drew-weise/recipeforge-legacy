@@ -32,8 +32,7 @@ public class RecipeIngredient {
     private String amount;
 
     /** Required by Hibernate. */
-    public RecipeIngredient() {
-    }
+    public RecipeIngredient() {}
 
     /**
      * Creates a new RecipeIngredient.
